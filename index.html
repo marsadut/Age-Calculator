@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Calculator</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 350px;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        #birthdate-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #555; /* Warna abu-abu gelap */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        #result-text {
+            margin-top: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            min-height: 1.2em; /* Mencegah lompatan layout */
+        }
+        
+        /* Gaya untuk pesan error */
+        #result-text.error {
+            color: red;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <h1>Age Calculator</h1>
+        
+        <label for="birthdate-input">Enter your birth date:</label>
+        
+        <input type="text" id="birthdate-input" placeholder="dd/mm/yyyy">
+        
+        <button id="calculate-button">Calculate</button>
+        
+        <p id="result-text"></p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/luxon@latest/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        // --- 1. Inisialisasi Datepicker ---
+        const birthdateInput = document.getElementById("birthdate-input");
+        flatpickr(birthdateInput, {
+            dateFormat: "d/m/Y", // Flatpickr MENULIS tanggal sbg: 18/03/2002
+            maxDate: "today"
+        });
+
+        // --- 2. Dapatkan Elemen Lain ---
+        const calculateButton = document.getElementById("calculate-button");
+        const resultText = document.getElementById("result-text");
+
+        // --- 3. Tambahkan Event Listener ke Tombol ---
+        calculateButton.addEventListener("click", () => {
+            const birthdateStr = birthdateInput.value;
+            
+            // 'luxon' sekarang ada secara global dari CDN
+            const DateTime = luxon.DateTime;
+
+            // Cek jika input kosong
+            if (!birthdateStr) {
+                resultText.textContent = "Please enter your birth date.";
+                resultText.className = 'error'; // Tambah kelas error
+                return;
+            }
+
+            // --- 4. Gunakan Luxon untuk Parsing & Kalkulasi ---
+            
+            // PERBAIKAN DI SINI:
+            // Luxon MEMBACA '18/03/2002' menggunakan format 'dd/MM/yyyy'
+            const birthDate = DateTime.fromFormat(birthdateStr, "dd/MM/yyyy");
+
+            // Cek jika tanggalnya valid
+            if (!birthDate.isValid) {
+                resultText.textContent = "Invalid date format. Use dd/mm/yyyy.";
+                resultText.className = 'error';
+                return;
+            }
+
+            // Dapatkan tanggal hari ini
+            const now = DateTime.now();
+
+            // Hitung perbedaan!
+            const diff = now.diff(birthDate, ["years", "months", "days"]);
+
+            // Dapatkan nilai dari objek diff
+            const years = Math.floor(diff.years);
+            const months = Math.floor(diff.months);
+
+            // --- 5. Tampilkan Hasil ---
+            resultText.textContent = `You are ${years} years ${months} months old`;
+            resultText.className = ''; // Hapus kelas error
+        });
+    </script>
+
+</body>
+</html>
